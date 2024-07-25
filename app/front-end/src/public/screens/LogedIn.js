@@ -28,11 +28,11 @@ const LogedInTabs = ({ userName, setLogedIn }) => (
         } else if (route.name === 'Settings') {
           iconName = 'settings';
         }
-        return <Ionicons name={iconName} size={size} color={color} />;
+        return <Ionicons name={iconName} size={20} color={color} />;
       },
       headerShown: false, // This hides the upper titles
-      tabBarStyle: { paddingVertical: 5 }, // Adding padding to the navbar
-      tabBarLabelStyle: { paddingBottom: 5 }, // Adding padding to the labels
+      tabBarStyle: { paddingBottom: 0 }, // Adding padding to the navbar
+      tabBarLabelStyle: { paddingBottom: 3, width: '100%' }, // Adding padding to the labels
     })}
     tabBarOptions={{
       activeTintColor: '#f99e00',

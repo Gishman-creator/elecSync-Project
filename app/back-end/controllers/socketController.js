@@ -1,3 +1,4 @@
+// socketController.js
 const Power = require('../models/powerModel'); // Import the Power model
 
 let interval;
@@ -28,7 +29,8 @@ const handleConnection = (io) => {
         const powerData = new Power({ timestamp: new Date(), consumedPower: instancePower, userId }); // Save instance power
         await powerData.save();
 
-        io.emit('updatePower', { consumedPower, totalPower });
+        // Emit event with new power data
+        io.emit('updatePower', { userId, instancePower, consumedPower, totalPower, timestamp: powerData.timestamp });
         console.log(`Emitting instancePower: ${instancePower} updatePower: ${consumedPower}/${totalPower}`);
       }, 1000);
     });

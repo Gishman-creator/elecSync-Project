@@ -7,11 +7,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 
 const Simulation = ({ navigation }) => {
-    const { socket, socketConnected } = useSocket(); // Use the socket from context
+    const { socket, startSimulation, stopSimulation, simulating, socketConnected } = useSocket(); // Use context
     const [totalPower, setTotalPower] = useState(2000);
     const [consumedPower, setConsumedPower] = useState(0);
-    const [simulating, setSimulating] = useState(false);
-    const [reset, setReset] = useState(false);
     const intervalRef = useRef(null); // Ref to store the interval ID
     const [userId, setId] = useState('');  // State to hold the user's email
 
@@ -25,46 +23,30 @@ const Simulation = ({ navigation }) => {
         fetchEmail();
     }, []);
 
-    const startSimulation = () => {
-        // Clear any existing interval before starting a new simulation
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-        }
+    useEffect(() => {
+        const checkSimulationStatus = async () => {
+            const storedSimulating = await AsyncStorage.getItem('simulating');
+            if (storedSimulating === 'true') {
+                setConsumedPower(0); // Initialize as needed
+                // Optionally set up interval or other necessary setup
+            }
+        };
 
-        if (!socket || !socketConnected) {
+        checkSimulationStatus();
+    }, []);
+
+    const handleStartSimulation = () => {
+        if (socketConnected) {
+            startSimulation(totalPower, userId);
+            AsyncStorage.setItem('simulating', 'true'); // Store simulation status
+        } else {
             console.error('Socket.IO is not connected');
-            return;
         }
-
-        setSimulating(true);
-        setReset(false); // Ensure reset is false when starting the simulation
-        setConsumedPower(0); // Reset consumed power when starting the simulation
-
-        socket.emit('startSimulation', { totalPower, userId });
-
-        intervalRef.current = setInterval(() => {
-            setConsumedPower(prev => {
-                if (prev + 100 >= totalPower) {
-                    clearInterval(intervalRef.current);
-                    setSimulating(false);
-                    return totalPower;
-                }
-                return prev + 100;
-            });
-        }, 3000);
     };
 
-    const stopSimulation = () => {
-        setSimulating(false);
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current); // Clear the interval
-        }
-        setConsumedPower(0); // Reset consumed power
-        setReset(true); // Trigger reset for ProgressBar
-
-        if (socket) {
-            socket.emit('stopSimulation');
-        }
+    const handleStopSimulation = () => {
+        stopSimulation();
+        AsyncStorage.removeItem('simulating'); // Clear simulation status
     };
 
     const handleInputChange = (value) => {
@@ -74,9 +56,8 @@ const Simulation = ({ navigation }) => {
     return (
         <SafeAreaView className="flex-1 bg-white p-4">
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-
                 <View className="bg-[#fff] flex-row justify-start items-center mt-4">
-                    <TouchableOpacity onPress={() => navigation.goBack()} className=" p-1">
+                    <TouchableOpacity onPress={() => navigation.goBack()} className="p-1">
                         <Ionicons name="arrow-back" size={24} color="black" />
                     </TouchableOpacity>
                     <Text className="text-center font-bold text-lg ml-4">Simulation Screen</Text>
@@ -88,7 +69,7 @@ const Simulation = ({ navigation }) => {
                 <ProgressBar
                     totalPower={totalPower}
                     consumedPower={consumedPower}
-                    reset={reset}
+                    reset={false} // Update as necessary
                 />
 
                 <Text className="text-lg">
@@ -106,14 +87,14 @@ const Simulation = ({ navigation }) => {
                     {!simulating ? (
                         <TouchableOpacity
                             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-                            onPress={startSimulation}
+                            onPress={handleStartSimulation}
                         >
                             <Text className="text-white">Start Simulation</Text>
                         </TouchableOpacity>
                     ) : (
                         <TouchableOpacity
                             className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-                            onPress={stopSimulation}
+                            onPress={handleStopSimulation}
                         >
                             <Text className="text-white">Stop Simulation</Text>
                         </TouchableOpacity>

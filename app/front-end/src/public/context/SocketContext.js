@@ -1,3 +1,4 @@
+// context/SocketContext.js
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import { BASE_URL } from '@env';  // Import the environment variable
@@ -9,8 +10,8 @@ export const useSocket = () => {
 };
 
 export const SocketProvider = ({ children }) => {
-  
     const [socketConnected, setSocketConnected] = useState(false);
+    const [simulating, setSimulating] = useState(false); // New state for simulation
     const socketRef = useRef(null);
 
     useEffect(() => {
@@ -39,8 +40,28 @@ export const SocketProvider = ({ children }) => {
         };
     }, []);
 
+    const startSimulation = (totalPower, userId) => {
+        if (socketRef.current) {
+            socketRef.current.emit('startSimulation', { totalPower, userId });
+            setSimulating(true);
+        }
+    };
+
+    const stopSimulation = () => {
+        if (socketRef.current) {
+            socketRef.current.emit('stopSimulation');
+            setSimulating(false);
+        }
+    };
+
     return (
-        <SocketContext.Provider value={{ socket: socketRef.current, socketConnected }}>
+        <SocketContext.Provider value={{ 
+            socket: socketRef.current, 
+            socketConnected, 
+            startSimulation, 
+            stopSimulation, 
+            simulating 
+        }}>
             {children}
         </SocketContext.Provider>
     );
