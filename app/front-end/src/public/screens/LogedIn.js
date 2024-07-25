@@ -56,6 +56,8 @@ const LogedIn = ({ setLogedIn }) => {
   useEffect(() => {
     const fetchUserName = async () => {
       const name = await AsyncStorage.getItem('userName');
+      const email = await AsyncStorage.getItem('userEmail'); // Fetch email if needed
+      const id = await AsyncStorage.getItem('userId'); // Fetch user ID if needed
       if (name) {
         setUserName(name);
       }

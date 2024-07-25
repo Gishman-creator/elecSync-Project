@@ -3,18 +3,20 @@ import React from 'react';
 import { SafeAreaView, TextInput, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-// ...rest of the imports
+import { BASE_URL } from '@env';  // Import the environment variable
 
 const LoginInPage = ({ navigateTo, setLogedIn }) => {
+  // Validation schema for formik
   const validationSchema = Yup.object().shape({
     email: Yup.string().required('Email is required').email('Invalid email format'),
     password: Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
   });
 
+  // Handle form submission
   const handleSubmit = async (values) => {
     try {
-      console.log(values);
-      const response = await fetch('http://192.168.1.73:3000/api/auth/login', {
+      // Make login request
+      const response = await fetch(`${BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,20 +27,33 @@ const LoginInPage = ({ navigateTo, setLogedIn }) => {
       const data = await response.json();
   
       if (response.ok) {
-        console.log('Login successful:', data);
-        if (data.data && data.data.user && data.data.user.name) {
-          await AsyncStorage.setItem('userName', data.data.user.name); // Store user's name
-          console.log('Stored user name:', data.data.user.name);
+        console.log('Login successful');
+  
+        // Ensure user data exists and is valid
+        if (data.data && data.data.user) {
+          const { _id, email, name } = data.data.user;
+  
+          // Check if values are defined
+          if (_id && email && name) {
+            await AsyncStorage.setItem('userId', _id.toString()); // Convert to string
+            await AsyncStorage.setItem('userEmail', email);
+            await AsyncStorage.setItem('userName', name);
+    
+            console.log('Stored user details:', { id: _id, email, name });
+    
+            setLogedIn(true); // Set logged in status
+          } else {
+            console.warn('User data is incomplete:', data.data.user);
+          }
         } else {
-          console.warn('No name returned from login response');
+          console.warn('No user data returned from login response');
         }
-        setLogedIn(true);
       } else {
-        Alert.alert('Login failed', data.message || 'Something went wrong up here');
+        Alert.alert('Login failed', data.message || 'Something went wrong');
       }
     } catch (error) {
       console.error('Login error:', error);
-      Alert.alert('Login failed', 'Something went wrong down here');
+      Alert.alert('Login failed', 'Something went wrong');
     }
   };
   

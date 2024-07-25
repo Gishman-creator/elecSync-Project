@@ -11,12 +11,12 @@ router.post('/auth/login', authController.login);
 
 // Chart data routes
 // Daily data route
-router.get('/data/daily', getDailyData);
+router.get('/data/daily/:userId', getDailyData);
 
 // Weekly data route
-router.get('/data/weekly', getWeeklyData);
+router.get('/data/weekly/:userId', getWeeklyData);
 
 // Monthly data route
-router.get('/data/monthly', getMonthlyData);
+router.get('/data/monthly/:userId', getMonthlyData);
 
 module.exports = router;

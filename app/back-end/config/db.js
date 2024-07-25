@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
+require('dotenv').config();
+
+const dbUrl = process.env.DATABASE_URL;
+
 
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://localhost:27017/elecSync');
+        await mongoose.connect(dbUrl);
         console.log('MongoDB connected');
     } catch (err) {
         console.error('Error connecting to MongoDB:', err.message);

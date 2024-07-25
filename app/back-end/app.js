@@ -4,6 +4,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const apiRoutes = require('./routes/apiRoutes'); // Combined routes file
 const { handleConnection } = require('./controllers/socketController'); // Socket controller
+require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);

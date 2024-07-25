@@ -7,8 +7,8 @@ const handleConnection = (io) => {
     console.log('New client connected');
 
     // Handle starting the simulation
-    socket.on('startSimulation', async (totalPower) => {
-      console.log(`Start simulation with totalPower: ${totalPower}`);
+    socket.on('startSimulation', async ({ totalPower, userId }) => {
+      console.log(`Start simulation with totalPower: ${totalPower} for user: ${userId}`);
       let consumedPower = 0;
 
       if (interval) {
@@ -17,19 +17,19 @@ const handleConnection = (io) => {
 
       interval = setInterval(async () => {
         // Simulate a random power consumption between 50 and 100 kW
-        const randomConsumption = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
-        consumedPower += randomConsumption;
+        const instancePower = Math.floor(Math.random() * (100 - 50 + 1)) + 50;
+        consumedPower += instancePower;
 
         if (consumedPower >= totalPower) {
           clearInterval(interval);
           consumedPower = totalPower;
         }
 
-        const powerData = new Power({ timestamp: new Date(), consumedPower });
+        const powerData = new Power({ timestamp: new Date(), consumedPower: instancePower, userId }); // Save instance power
         await powerData.save();
 
         io.emit('updatePower', { consumedPower, totalPower });
-        console.log(`Emitting updatePower: ${consumedPower}/${totalPower}`);
+        console.log(`Emitting instancePower: ${instancePower} updatePower: ${consumedPower}/${totalPower}`);
       }, 1000);
     });
 
@@ -39,9 +39,8 @@ const handleConnection = (io) => {
       if (interval) {
         clearInterval(interval);
         interval = null; // Clear the interval reference
-        consumedPower = 0;
-        console.log(consumedPower);
       }
+      consumedPower = 0;
 
       // Emit reset signal to clients
       io.emit('updatePower', { consumedPower });

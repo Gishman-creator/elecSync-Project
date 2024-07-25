@@ -19,7 +19,12 @@ const getMonthlyData = async (req, res) => {
     endDate.setMonth(startDate.getMonth() + 1); // Start of next month
     endDate.setDate(0); // End of the month
 
-    const data = await Power.find({ timestamp: { $gte: startDate, $lt: endDate } });
+    const { userId } = req.params;
+
+    const data = await Power.find({
+      userId: userId,
+      timestamp: { $gte: startDate, $lt: endDate }
+    });
 
     const labels = [];
     const dataPoints = [];

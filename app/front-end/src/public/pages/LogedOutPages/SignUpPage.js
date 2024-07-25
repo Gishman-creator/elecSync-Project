@@ -4,8 +4,10 @@ import CheckBox from 'expo-checkbox';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import PhoneInput from 'react-native-phone-number-input';
+import { BASE_URL } from '@env';  // Import the environment variable
 
 const SignUpPage = ({ navigateTo }) => {
+
   const phoneInput = useRef(null);
 
   const validationSchema = Yup.object().shape({
@@ -21,7 +23,7 @@ const SignUpPage = ({ navigateTo }) => {
   const handleSubmit = async (values, { setErrors }) => {
     try {
       console.log(values)
-      const response = await fetch('http://192.168.1.73:3000/api/auth/signup', {
+      const response = await fetch(`${baseURL}/api/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

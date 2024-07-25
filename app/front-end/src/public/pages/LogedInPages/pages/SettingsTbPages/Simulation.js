@@ -1,7 +1,9 @@
-import React, { useState, useRef } from 'react';
+// Simulation.js
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import ProgressBar from '../../../../components/ProgressBar'; // Import ProgressBar component
 import { useSocket } from '../../../../context/SocketContext'; // Import useSocket hook
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 
 const Simulation = ({ navigation }) => {
@@ -11,6 +13,17 @@ const Simulation = ({ navigation }) => {
     const [simulating, setSimulating] = useState(false);
     const [reset, setReset] = useState(false);
     const intervalRef = useRef(null); // Ref to store the interval ID
+    const [userId, setId] = useState('');  // State to hold the user's email
+
+    useEffect(() => {
+        const fetchEmail = async () => {
+            const storedId = await AsyncStorage.getItem('userId'); // Fetch email from AsyncStorage
+            if (storedId) {
+                setId(storedId);
+            }
+        };
+        fetchEmail();
+    }, []);
 
     const startSimulation = () => {
         // Clear any existing interval before starting a new simulation
@@ -27,7 +40,7 @@ const Simulation = ({ navigation }) => {
         setReset(false); // Ensure reset is false when starting the simulation
         setConsumedPower(0); // Reset consumed power when starting the simulation
 
-        socket.emit('startSimulation', totalPower);
+        socket.emit('startSimulation', { totalPower, userId });
 
         intervalRef.current = setInterval(() => {
             setConsumedPower(prev => {
@@ -66,7 +79,7 @@ const Simulation = ({ navigation }) => {
                     <TouchableOpacity onPress={() => navigation.goBack()} className=" p-1">
                         <Ionicons name="arrow-back" size={24} color="black" />
                     </TouchableOpacity>
-                    <Text className="text-center text-lg ml-4">Simulation Screen</Text>
+                    <Text className="text-center font-bold text-lg ml-4">Simulation Screen</Text>
                 </View>
 
                 <Text className="text-[#db9a2b] text-3xl font-bold my-5">

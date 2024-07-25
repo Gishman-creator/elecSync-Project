@@ -1,15 +1,42 @@
-import React, { useState } from 'react';
+// pages/HistoryTbPages/LineChart.js
+import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { scaleLinear, scalePoint, line, curveBasis } from 'd3';
 import { Svg, Path, G, Line as SvgLine, Text as SvgText, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { PanGestureHandler } from 'react-native-gesture-handler';
+import { useSocket } from '../../../../context/SocketContext'; 
 
 const LineChart = ({ data, chartHeight, chartMargin, chartWidth }) => {
+  const { socket } = useSocket();
+  const [chartData, setChartData] = useState(data);
   const [cursorX, setCursorX] = useState(null);
   const [cursorLabel, setCursorLabel] = useState('Label');
   const [cursorConsumption, setCursorConsumption] = useState('0');
 
-  if (!data || !data.datasets || !data.datasets.length || !data.labels || !data.labels.length) {
+  useEffect(() => {
+    if (socket) {
+      const handleUpdatePower = (update) => {
+        // Update the chart data with new power consumption data
+        const newData = {
+          ...chartData,
+          datasets: [{
+            ...chartData.datasets[0],
+            data: [...chartData.datasets[0].data, update.consumedPower]
+          }],
+          labels: [...chartData.labels, new Date().toLocaleTimeString()] // Assuming you're using time labels
+        };
+        setChartData(newData);
+      };
+
+      socket.on('updatePower', handleUpdatePower);
+
+      return () => {
+        socket.off('updatePower', handleUpdatePower);
+      };
+    }
+  }, [socket, chartData]);
+
+  if (!chartData || !chartData.datasets || !chartData.datasets.length || !chartData.labels || !chartData.labels.length) {
     return (
       <View className="flex-1 justify-center items-center">
         <Text>No data available in LineChart.js</Text>
@@ -17,10 +44,10 @@ const LineChart = ({ data, chartHeight, chartMargin, chartWidth }) => {
     );
   }
 
-  const datasets = data.datasets;
-  const labels = data.labels;
-  const highlightLabels = data.highlightLabels || labels;
-  const fullDates = data.fullDates || labels;
+  const datasets = chartData.datasets;
+  const labels = chartData.labels;
+  const highlightLabels = chartData.highlightLabels || labels;
+  const fullDates = chartData.fullDates || labels;
 
   const xDomain = labels;
   const xRange = [chartMargin, chartWidth - chartMargin];

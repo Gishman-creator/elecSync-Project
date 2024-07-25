@@ -9,7 +9,12 @@ const getWeeklyData = async (req, res) => {
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6); // End of the week
 
-    const data = await Power.find({ timestamp: { $gte: startDate, $lt: endDate } });
+    const { userId } = req.params;
+
+    const data = await Power.find({
+      userId: userId,
+      timestamp: { $gte: startDate, $lt: endDate }
+    });
 
     const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const datasets = [{ label: 'Power Consumption', data: Array(7).fill(0) }];
