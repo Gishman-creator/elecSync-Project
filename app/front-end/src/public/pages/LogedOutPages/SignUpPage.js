@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { SafeAreaView, TextInput, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import { Formik } from 'formik';
@@ -7,7 +7,9 @@ import PhoneInput from 'react-native-phone-number-input';
 import { BASE_URL } from '@env';  // Import the environment variable
 
 const SignUpPage = ({ navigateTo }) => {
-
+  const [isFocused, setIsFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const phoneInput = useRef(null);
 
   const validationSchema = Yup.object().shape({
@@ -22,8 +24,8 @@ const SignUpPage = ({ navigateTo }) => {
 
   const handleSubmit = async (values, { setErrors }) => {
     try {
-      console.log(values)
-      const response = await fetch(`${baseURL}/api/auth/signup`, {
+      console.log(values);
+      const response = await fetch(`${BASE_URL}/api/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -36,7 +38,6 @@ const SignUpPage = ({ navigateTo }) => {
       if (response.ok) {
         console.log('Signup successful:', data);
         Alert.alert('Signup Successful', 'You have successfully registered!');
-        // Navigate to the login screen
         navigateTo('LoginPage');
       } else {
         if (data.message) {
@@ -77,10 +78,10 @@ const SignUpPage = ({ navigateTo }) => {
     <SafeAreaView className="h-full">
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }} className="py-10">
         <View className="mb-5 flex-col justify-center items-center">
-          <Text className="text-2xl font-bold">Welcome to Elec
+          <Text className="text-2xl font-semibold">Welcome to Elec
             <Text className="text-[#f99e00]">Sync,</Text>
           </Text>
-          <Text className="text-base font-semibold">Please fill in your information.</Text>
+          <Text className="text-sm">Please fill in your information.</Text>
         </View>
 
         <Formik
@@ -89,29 +90,29 @@ const SignUpPage = ({ navigateTo }) => {
           onSubmit={handleSubmit}
         >
           {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue }) => (
-            <View className="w-full px-10">
+            <View className="w-full px-7">
               <Text className="text-sm font-semibold my-1">Name</Text>
               <TextInput
-                className="border-2 border-[#ffbd4c] py-1 px-2 rounded-lg mb-2"
+                className="border border-gray-300 focus:border-[#ffbd4c] py-1 px-3 rounded-md mb-1"
                 onChangeText={handleChange('name')}
                 onBlur={handleBlur('name')}
                 value={values.name}
                 placeholder="Name"
               />
               {touched.name && errors.name && (
-                <Text className="text-red-500 text-sm">{errors.name}</Text>
+                <Text className="text-xs mb-1">{errors.name}</Text>
               )}
 
               <Text className="text-sm font-semibold my-1">Email</Text>
               <TextInput
-                className="border-2 border-[#ffbd4c] py-1 px-2 rounded-lg mb-2"
+                className="border border-gray-300 focus:border-[#ffbd4c] py-1 px-3 rounded-md mb-1"
                 onChangeText={handleChange('email')}
                 onBlur={handleBlur('email')}
                 value={values.email}
                 placeholder="Email"
               />
               {touched.email && errors.email && (
-                <Text className="text-red-500 text-sm">{errors.email}</Text>
+                <Text className="text-xs mb-1">{errors.email}</Text>
               )}
 
               <Text className="text-sm font-semibold my-1">Phone Number</Text>
@@ -122,16 +123,25 @@ const SignUpPage = ({ navigateTo }) => {
                 layout="first"
                 placeholder="Phone"
                 onChangeFormattedText={(text) => handlePhoneChange(text, setFieldValue)}
-                containerStyle={{ borderColor: '#ffbd4c', borderWidth: 2, borderRadius: 10, marginBottom: 10, width: '100%' }}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                containerStyle={{
+                  borderColor: isFocused ? '#ffbd4c' : '#d1d5db',
+                  borderWidth: 1,
+                  borderRadius: 6,
+                  marginBottom: 10,
+                  width: '100%',
+                  paddingVertical: 2
+                }}
                 textContainerStyle={{ paddingVertical: 2 }}
               />
               {touched.phone && errors.phone && (
-                <Text className="text-red-500 text-sm">{errors.phone}</Text>
+                <Text className="text-xs mb-1">{errors.phone}</Text>
               )}
 
               <Text className="text-sm font-semibold my-1">Electric Meter ID</Text>
               <TextInput
-                className="border-2 border-[#ffbd4c] py-1 px-2 rounded-lg mb-2"
+                className="border border-gray-300 focus:border-[#ffbd4c] py-1 px-3 rounded-md mb-1"
                 onChangeText={(text) => setFieldValue('meterId', formatMeterId(text))}
                 onBlur={handleBlur('meterId')}
                 value={values.meterId}
@@ -139,33 +149,53 @@ const SignUpPage = ({ navigateTo }) => {
                 keyboardType="numeric"
               />
               {touched.meterId && errors.meterId && (
-                <Text className="text-red-500 text-sm">{errors.meterId}</Text>
+                <Text className="text-xs mb-1">{errors.meterId}</Text>
               )}
 
               <Text className="text-sm font-semibold my-1">Password</Text>
-              <TextInput
-                className="border-2 border-[#ffbd4c] py-1 px-2 rounded-lg mb-2"
-                onChangeText={handleChange('password')}
-                onBlur={handleBlur('password')}
-                value={values.password}
-                placeholder="Password"
-                secureTextEntry
-              />
+              <View className="relative">
+                <TextInput
+                  className="border border-gray-300 focus:border-[#ffbd4c] py-1 px-3 rounded-md mb-1 pr-10"
+                  onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
+                  value={values.password}
+                  placeholder="Password"
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-2 transform -translate-y-1/2"
+                >
+                  <Text className="text-sm font-semibold text-gray-600">
+                    {showPassword ? 'Hide' : 'Show'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
               {touched.password && errors.password && (
-                <Text className="text-red-500 text-sm">{errors.password}</Text>
+                <Text className="text-xs mb-1">{errors.password}</Text>
               )}
 
               <Text className="text-sm font-semibold my-1">Confirm Password</Text>
-              <TextInput
-                className="border-2 border-[#ffbd4c] py-1 px-2 rounded-lg mb-2"
-                onChangeText={handleChange('confirmPassword')}
-                onBlur={handleBlur('confirmPassword')}
-                value={values.confirmPassword}
-                placeholder="Confirm Password"
-                secureTextEntry
-              />
+              <View className="relative">
+                <TextInput
+                  className="border border-gray-300 focus:border-[#ffbd4c] py-1 px-3 rounded-md mb-1 pr-10"
+                  onChangeText={handleChange('confirmPassword')}
+                  onBlur={handleBlur('confirmPassword')}
+                  value={values.confirmPassword}
+                  placeholder="Confirm Password"
+                  secureTextEntry={!showConfirmPassword}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-2 transform -translate-y-1/2"
+                >
+                  <Text className="text-sm font-semibold text-gray-600">
+                    {showConfirmPassword ? 'Hide' : 'Show'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
               {touched.confirmPassword && errors.confirmPassword && (
-                <Text className="text-red-500 text-sm">{errors.confirmPassword}</Text>
+                <Text className="text-xs mb-1">{errors.confirmPassword}</Text>
               )}
 
               <View className="flex-row items-center mt-4">
@@ -176,14 +206,14 @@ const SignUpPage = ({ navigateTo }) => {
                 <Text className="ml-2">I agree to the terms and conditions</Text>
               </View>
               {touched.agreeTerms && errors.agreeTerms && (
-                <Text className="text-red-500 text-sm">{errors.agreeTerms}</Text>
+                <Text className="text-xs mb-1">{errors.agreeTerms}</Text>
               )}
 
               <TouchableOpacity
                 onPress={handleSubmit}
-                className="bg-[#f99e00] w-52 p-2 rounded-3xl flex justify-center items-center mt-4 mx-auto"
+                className="bg-[#f99e00] w-full p-2 rounded-3xl flex justify-center items-center mt-4 mx-auto"
               >
-                <Text className="text-lg font-bold text-center text-white">Register</Text>
+                <Text className="text-sm font-semibold text-center text-white">Sign up</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

@@ -19,7 +19,7 @@ export default function LogedOut({ setLogedIn }) {
   };
 
   return (
-    <SafeAreaView className="h-full py-6 px-4">
+    <SafeAreaView className="h-full py-6">
       {renderPage()}
     </SafeAreaView>
   );
