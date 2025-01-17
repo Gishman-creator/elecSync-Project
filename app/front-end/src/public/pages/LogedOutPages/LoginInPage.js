@@ -8,6 +8,7 @@ import { BASE_URL } from '@env';  // Import the environment variable
 const LoginInPage = ({ navigateTo, setLogedIn }) => {
   // State to toggle password visibility
   const [showPassword, setShowPassword] = useState(false);
+  // const BASE_URL = "http://10.12.73.22:3000"
 
   // Validation schema for formik
   const validationSchema = Yup.object().shape({
@@ -17,8 +18,10 @@ const LoginInPage = ({ navigateTo, setLogedIn }) => {
 
   // Handle form submission
   const handleSubmit = async (values) => {
+    console.log("The values are:", values);
     try {
       // Make login request
+      console.log(`The url is: ${BASE_URL}/api/auth/login`)
       const response = await fetch(`${BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
@@ -27,6 +30,7 @@ const LoginInPage = ({ navigateTo, setLogedIn }) => {
         body: JSON.stringify(values),
       });
 
+      console.log("The response is:", response);
       const data = await response.json();
 
       if (response.ok) {

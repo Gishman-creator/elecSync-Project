@@ -3,6 +3,10 @@ import { SafeAreaView } from 'react-native';
 import LogedOut from './src/public/screens/LogedOut';
 import LogedIn from './src/public/screens/LogedIn';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NativeWindStyleSheet } from "nativewind";
+NativeWindStyleSheet.setOutput({
+  default: "native",
+});
 
 export default function App() {
   const [logedIn, setLogedIn] = useState(false);

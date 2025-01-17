@@ -10,6 +10,7 @@ export const useSocket = () => {
 };
 
 export const SocketProvider = ({ children }) => {
+    console.log('BASE_URL:', BASE_URL);
     const [socketConnected, setSocketConnected] = useState(false);
     const [simulating, setSimulating] = useState(false); // New state for simulation
     const socketRef = useRef(null);

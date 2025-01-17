@@ -37,6 +37,7 @@ const HistoryTab = () => {
     }
   
     try {
+      console.log('Fetching data...');
       setInitialLoading(true); // Show loading spinner for initial fetches
       const response = await fetch(`${BASE_URL}/api/data/${filter}/${userId}`); // Include user ID in URL
       const responseData = await response.json();
