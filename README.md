@@ -89,6 +89,7 @@ Follow the instructions to scan the QR code provided. This will launch the React
 ## Notes
 
 - Ensure you have **Node.js** and **npm** installed on your system.
+- Remember to set your custom environment variablesss in the **.env** files
 - For the front-end, you may need to have a mobile emulator or a device with the Expo app installed to scan the QR code.
 - For the back-end, make sure you have **nodemon** installed globally or install it locally using:
   ```bash
@@ -103,4 +104,7 @@ Follow the instructions to scan the QR code provided. This will launch the React
 2. Create a new branch for your feature or bug fix.
 3. Commit your changes with clear messages.
 4. Submit a pull request for review.
+
+
+
 
