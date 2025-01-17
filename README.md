@@ -57,7 +57,7 @@ npm install
 
 ```bash
 cd ../front-end
-npm install
+yarn install
 ```
 
 ---
@@ -79,7 +79,7 @@ This will start the server, which will handle API requests.
 Navigate to the `front-end` directory and run:
 
 ```bash
-npm start
+expo start
 ```
 
 Follow the instructions to scan the QR code provided. This will launch the React Native app.
@@ -89,7 +89,7 @@ Follow the instructions to scan the QR code provided. This will launch the React
 ## Notes
 
 - Ensure you have **Node.js** and **npm** installed on your system.
-- Remember to set your custom environment variablesss in the **.env** files
+- Remember to set your custom environment variablesss in the **.env** files.
 - For the front-end, you may need to have a mobile emulator or a device with the Expo app installed to scan the QR code.
 - For the back-end, make sure you have **nodemon** installed globally or install it locally using:
   ```bash
